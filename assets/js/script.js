@@ -45,7 +45,7 @@ formCont.on('click', '#submitBtn', function(event){
         
         parseResponseDataObj(current, fiveDay);
 
-        createSearchHistory()
+        
 
         });
 })
@@ -80,10 +80,37 @@ function parseResponseDataObj(currentData, fiveDayData){
             }
         ]
     }
-        
+    
+    createSearchHistory(storedDataObj)
     // call function to store data in master array
-    storeData(storedDataObj);
+    
 }
+
+
+
+
+function createSearchHistory(weatherDataObj){
+
+    
+        var rowContainer = $('<div>');
+        rowContainer.addClass('row searchHistory');
+        searchHistContainer.append(rowContainer);
+
+        var city = $('<div>');
+        city.addClass('col-sm-12')
+
+
+        city.text(weatherDataObj.city[0].cityName)
+        rowContainer.append(city);
+
+
+
+        console.log(weatherDataObj)
+
+        
+        storeData(weatherDataObj);
+
+    }
 
 
 
@@ -97,34 +124,8 @@ function storeData(dataObj){
     //     masterArray.shift();
     //     masterArray.push(dataObj);
     // }
-    //console.log(masterArray);
-}
-
-
-
-function createSearchHistory(){
-
+    console.log(masterArray);
     
-        var rowContainer = $('<div>');
-        rowContainer.addClass('row searchHistory');
-        searchHistContainer.append(rowContainer);
-
-
-    masterArray.forEach(function(item, index){
-        
-        var arrayObj = item; 
-        console.log(arrayObj);
-        
-        //console.log(masterArray);
-        
-        console.log(arrayObj.city[0].cityName)
-
-        // var city = $('<div>');
-        // city.addClass('col-sm-12')
-        // city.text(arrayObj[index][0].cityName)
-        // rowContainer.append(city);
-
-    })
 }
 
 
