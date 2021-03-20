@@ -1,0 +1,30 @@
+:root {
+    --primary: #2081C3;
+    --secondary: #63D2FF;
+    --light: #BED8D4;
+    --white: #F7F9F9;
+    --dark: #78D5D7;
+
+
+}
+
+div {
+    border: 2px solid black;
+}
+
+header {
+    padding: 2%;
+    background-color: var(--primary);
+    text-align: center;
+    color: var(--white);
+    border-bottom: 20px solid var(--dark);
+
+}
+
+footer {
+    padding: 1%;
+    background-color: var(--primary);
+    text-align: center;
+    color: var(--white);
+    border-top: 10px solid var(--secondary)
+}
