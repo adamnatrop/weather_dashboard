@@ -115,13 +115,13 @@ function createSearchHistory(){
             cityHistContainer.append(rowContainer);
             // creates city "button" that user will click on to display weather results
             var city = $('<div>');
-            city.addClass('col-sm-12');
+            city.addClass('col-sm-12 cityBtn');
             city.attr('data-index', index);
             // writing city name text to button
             city.text(weatherDataObj.city[0].cityName)
             // before appending city div - need to figure out how to add index value to div to be able to call upon it when clicked later
             rowContainer.append(city);
-            
+
         })
     }
 
@@ -142,7 +142,11 @@ function storeData(dataObj){
 }
 
 
+searchHistContainer.on("click", ".cityBtn", function(){
 
+    console.log($(this));
+
+})
 
 
 
