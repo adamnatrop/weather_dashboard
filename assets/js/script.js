@@ -3,7 +3,7 @@ var searchHistContainer = $('#cityReturnBox');
 var formCont = $('#zipEnt');
 // global variables 
 
-
+var cityHistContainer = $();
 
 // Master Array used to push and store data 
 
@@ -43,6 +43,9 @@ formCont.on('click', '#submitBtn', function(event){
             //console.log('Ajax Reponse \n-------------');
             //console.log(current, fiveDay);
         
+
+            // write another call function to get the map data lat long based on the current api
+            
         parseResponseDataObj(current, fiveDay);
 
         
@@ -65,7 +68,7 @@ function parseResponseDataObj(currentData, fiveDayData){
                 lowTemp: currentData[0].main.temp_min,
                 humidity: currentData[0].main.humidity,
                 windSpeed: currentData[0].wind.speed,
-                feelsLink: currentData[0].main.feels_like,
+                feelsLike: currentData[0].main.feels_like,
                 lat: currentData[0].coord.lat,
                 long: currentData[0].coord.lon
             },
@@ -76,12 +79,12 @@ function parseResponseDataObj(currentData, fiveDayData){
                 futureLowTemp: fiveDayData[0].list[0].main.temp_min,
                 futureHumidity: fiveDayData[0].list[0].main.humidity,
                 futureWindSpeed: fiveDayData[0].list[0].wind.speed,
-                futureFeelsLink: fiveDayData[0].list[0].main.feels_like
+                futureFeelsLike: fiveDayData[0].list[0].main.feels_like
             }
         ]
     }
     
-    createSearchHistory(storedDataObj)
+    storeData(storedDataObj)
     // call function to store data in master array
     
 }
@@ -89,27 +92,37 @@ function parseResponseDataObj(currentData, fiveDayData){
 
 
 
-function createSearchHistory(weatherDataObj){
+function createSearchHistory(){
 
-    
-        var rowContainer = $('<div>');
-        rowContainer.addClass('row searchHistory');
-        searchHistContainer.append(rowContainer);
-
-        var city = $('<div>');
-        city.addClass('col-sm-12')
-
-
-        city.text(weatherDataObj.city[0].cityName)
-        rowContainer.append(city);
-
-
-
-        console.log(weatherDataObj)
-
+        // checks to see if search history exists yet
+        if (masterArray.length > 1) {
+            // removes past search results
+            cityHistContainer.remove(); 
+        }
+        // creates container that stores city name
+        cityHistContainer = $('<div>');
+        cityHistContainer.addClass('container remove');
+        searchHistContainer.append(cityHistContainer);
         
-        storeData(weatherDataObj);
+        //console.log(masterArray.city)
 
+        masterArray.forEach(function(item, index){
+            // stores each object item
+            var weatherDataObj = item;
+            // creates row container for each city
+            var rowContainer = $('<div>');
+            rowContainer.addClass('row searchHistory');
+            cityHistContainer.append(rowContainer);
+            // creates city "button" that user will click on to display weather results
+            var city = $('<div>');
+            city.addClass('col-sm-12');
+            city.attr('data-index', index);
+            // writing city name text to button
+            city.text(weatherDataObj.city[0].cityName)
+            // before appending city div - need to figure out how to add index value to div to be able to call upon it when clicked later
+            rowContainer.append(city);
+            
+        })
     }
 
 
@@ -117,15 +130,15 @@ function createSearchHistory(weatherDataObj){
 // function that checks masterArray length and limits the length pushing oldest appending newest object
 function storeData(dataObj){
 
-    if (masterArray.length <= 4){
-        masterArray.push(dataObj);  
-    } 
-    // else if (masterArray.length >=4) {
-    //     masterArray.shift();
-    //     masterArray.push(dataObj);
-    // }
-    console.log(masterArray);
-    
+    if (masterArray.length > 4){
+        masterArray.pop();
+        masterArray.unshift(dataObj);
+    } else {
+
+    masterArray.unshift(dataObj);
+    }
+
+    createSearchHistory();
 }
 
 
