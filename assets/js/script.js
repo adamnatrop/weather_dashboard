@@ -1,13 +1,17 @@
 // get elements from DOM
 var searchHistContainer = $('#cityReturnBox');
+var currentDayContainer = $('#currentDayForcast');
+var fiveDayContainer = $('#fiveDayForcast');
 var formCont = $('#zipEnt');
 // global variables 
 
 var cityHistContainer = $();
+var currentDisplayIndex = 0;
+var currentDisplayContainer = $();
 
 // Master Array used to push and store data 
 
-masterArray = [];
+weatherDataArray = [];
 
 
 
@@ -95,7 +99,7 @@ function parseResponseDataObj(currentData, fiveDayData){
 function createSearchHistory(){
 
         // checks to see if search history exists yet
-        if (masterArray.length > 1) {
+        if (weatherDataArray.length > 1) {
             // removes past search results
             cityHistContainer.remove(); 
         }
@@ -104,9 +108,9 @@ function createSearchHistory(){
         cityHistContainer.addClass('container remove');
         searchHistContainer.append(cityHistContainer);
         
-        //console.log(masterArray.city)
+        //console.log(weatherDataArray.city)
 
-        masterArray.forEach(function(item, index){
+        weatherDataArray.forEach(function(item, index){
             // stores each object item
             var weatherDataObj = item;
             // creates row container for each city
@@ -127,15 +131,15 @@ function createSearchHistory(){
 
 
 
-// function that checks masterArray length and limits the length pushing oldest appending newest object
+// function that checks weatherDataArray length and limits the length pushing oldest appending newest object
 function storeData(dataObj){
 
-    if (masterArray.length > 4){
-        masterArray.pop();
-        masterArray.unshift(dataObj);
+    if (weatherDataArray.length > 4){
+        weatherDataArray.pop();
+        weatherDataArray.unshift(dataObj);
     } else {
 
-    masterArray.unshift(dataObj);
+    weatherDataArray.unshift(dataObj);
     }
 
     createSearchHistory();
@@ -143,13 +147,68 @@ function storeData(dataObj){
 
 
 searchHistContainer.on("click", ".cityBtn", function(){
+    // gets array index value based on button clicked
+    var weatherDataIndex = $(this).attr('data-index')
+    // stores city data from indexed object
+    var cityDataObj =  weatherDataArray[weatherDataIndex];
+    console.log(cityDataObj);
 
-    console.log($(this));
+    currentWeatherForcast(cityDataObj, weatherDataIndex);
+
+    fiveDayWeatherForcast(cityDataObj, weatherDataIndex);
 
 })
 
 
+function currentWeatherForcast(cityDataObj, index){
 
+    if (currentDisplayIndex !== index){
+        currentDisplayContainer.remove(); 
+    }
+     // creates container that stores city name
+     currentDisplayContainer = $('<div>');
+     currentDisplayContainer.addClass('container remove');
+     currentDayContainer.append(currentDisplayContainer);
+
+    var currentRow = $('<div>');
+    currentRow.addClass('row');
+    currentDisplayContainer.append(currentRow);
+
+    var cityName = $('<div>');
+    cityName.addClass('col-12');
+    cityName.text(cityDataObj.city[0].cityName);
+
+    var currentTemp = $('<p>');
+    currentTemp.addClass('col-12');
+    currentTemp.text("Temperature: " + cityDataObj.city[0].currentTemp + " °F");
+
+    var currentHumidity = $('<p>');
+    currentHumidity.addClass('col-12');
+    currentHumidity.text("Humidity: " + cityDataObj.city[0].humidity + "%");
+
+    var currentWindSpeed = $('<p>');
+    currentWindSpeed.addClass('col-12');
+    currentWindSpeed.text("Wind Speed: " + cityDataObj.city[0].windSpeed + " MPH");
+
+    currentDisplayContainer.append(cityName);
+    currentDisplayContainer.append(currentTemp);
+    currentDisplayContainer.append(currentHumidity);
+    currentDisplayContainer.append(currentWindSpeed);
+
+}
+
+function fiveDayWeatherForcast(cityDataObj, index){
+
+    if (currentDisplayIndex !== index){
+        fiveDayDisplayContainer.remove(); 
+    }
+     // creates container that stores city name
+     fiveDayDisplayContainer = $('<div>');
+     fiveDayDisplayContainer.addClass('container remove');
+     fiveDayContainer.append(fiveDayDisplayContainer);
+
+     
+}
 
 // pseudoCode 
 
