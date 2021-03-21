@@ -8,6 +8,7 @@ var formCont = $('#zipEnt');
 var cityHistContainer = $();
 var currentDisplayIndex = 0;
 var currentDisplayContainer = $();
+var fiveDayDisplayContainer = $();
 
 // Master Array used to push and store data 
 
@@ -27,7 +28,8 @@ formCont.on('click', '#submitBtn', function(event){
     var zipcode = btnInput.val();
     // calling api with user input zipcode. Current, 5 Day, and Map - for UV index
     var requestCurrentUrl = `https://api.openweathermap.org/data/2.5/weather?zip=${zipcode}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
-    var requestFiveDayUrl = `https://api.openweathermap.org/data/2.5/forecast?zip=${zipcode}&cnt=1&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
+    var requestFiveDayUrl = `https://api.openweathermap.org/data/2.5/forecast?zip=${zipcode}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
+    // &cnt=1
     // var requestMapUrl = '',
 
         // calling api simultaneously  
@@ -59,7 +61,7 @@ formCont.on('click', '#submitBtn', function(event){
 
 // function to parse data objects into useable key value pairs
 function parseResponseDataObj(currentData, fiveDayData){
-
+    
     var storedDataObj = 
 
     { city: 
@@ -77,22 +79,66 @@ function parseResponseDataObj(currentData, fiveDayData){
                 long: currentData[0].coord.lon
             },
             {
-                futureForcastIcon: fiveDayData[0].list[0].weather[0].icon,
-                futureTemp: fiveDayData[0].list[0].main.temp,
-                futureHighTemp: fiveDayData[0].list[0].main.temp_max,
-                futureLowTemp: fiveDayData[0].list[0].main.temp_min,
-                futureHumidity: fiveDayData[0].list[0].main.humidity,
-                futureWindSpeed: fiveDayData[0].list[0].wind.speed,
-                futureFeelsLike: fiveDayData[0].list[0].main.feels_like
+                dayOne: {
+                            futureForcastIcon: fiveDayData[0].list[6].weather[0].icon,
+                            futureTemp: fiveDayData[0].list[6].main.temp,
+                            futureHighTemp: fiveDayData[0].list[6].main.temp_max,
+                            futureLowTemp: fiveDayData[0].list[6].main.temp_min,
+                            futureHumidity: fiveDayData[0].list[6].main.humidity,
+                            futureWindSpeed: fiveDayData[0].list[6].wind.speed,
+                            futureFeelsLike: fiveDayData[0].list[6].main.feels_like
+                        },
+                
+                dayTwo: {
+                            futureForcastIcon: fiveDayData[0].list[14].weather[0].icon,
+                            futureTemp: fiveDayData[0].list[14].main.temp,
+                            futureHighTemp: fiveDayData[0].list[14].main.temp_max,
+                            futureLowTemp: fiveDayData[0].list[14].main.temp_min,
+                            futureHumidity: fiveDayData[0].list[14].main.humidity,
+                            futureWindSpeed: fiveDayData[0].list[14].wind.speed,
+                            futureFeelsLike: fiveDayData[0].list[14].main.feels_like
+                        },
+                
+                dayThree: {
+                            futureForcastIcon: fiveDayData[0].list[22].weather[0].icon,
+                            futureTemp: fiveDayData[0].list[22].main.temp,
+                            futureHighTemp: fiveDayData[0].list[22].main.temp_max,
+                            futureLowTemp: fiveDayData[0].list[22].main.temp_min,
+                            futureHumidity: fiveDayData[0].list[22].main.humidity,
+                            futureWindSpeed: fiveDayData[0].list[22].wind.speed,
+                            futureFeelsLike: fiveDayData[0].list[22].main.feels_like
+                        },
+                
+                dayFour: {
+                            futureForcastIcon: fiveDayData[0].list[30].weather[0].icon,
+                            futureTemp: fiveDayData[0].list[30].main.temp,
+                            futureHighTemp: fiveDayData[0].list[30].main.temp_max,
+                            futureLowTemp: fiveDayData[0].list[30].main.temp_min,
+                            futureHumidity: fiveDayData[0].list[30].main.humidity,
+                            futureWindSpeed: fiveDayData[0].list[30].wind.speed,
+                            futureFeelsLike: fiveDayData[0].list[30].main.feels_like
+                        },
+                
+                dayFive: {
+                            futureForcastIcon: fiveDayData[0].list[38].weather[0].icon,
+                            futureTemp: fiveDayData[0].list[38].main.temp,
+                            futureHighTemp: fiveDayData[0].list[38].main.temp_max,
+                            futureLowTemp: fiveDayData[0].list[38].main.temp_min,
+                            futureHumidity: fiveDayData[0].list[38].main.humidity,
+                            futureWindSpeed: fiveDayData[0].list[38].wind.speed,
+                            futureFeelsLike: fiveDayData[0].list[38].main.feels_like
+                        }
             }
         ]
     }
     
-    storeData(storedDataObj)
-    // call function to store data in master array
     
-}
+    // call function to store data in master array
+    storeData(storedDataObj)
 
+    
+
+}
 
 
 
@@ -143,10 +189,11 @@ function storeData(dataObj){
     }
 
     createSearchHistory();
+    currentWeatherForcast(dataObj);
 }
 
 
-searchHistContainer.on("click", ".cityBtn", function(){
+searchHistContainer.on("click", ".cityBtn", function searchResults(){
     // gets array index value based on button clicked
     var weatherDataIndex = $(this).attr('data-index')
     // stores city data from indexed object
@@ -207,7 +254,7 @@ function fiveDayWeatherForcast(cityDataObj, index){
      fiveDayDisplayContainer.addClass('container remove');
      fiveDayContainer.append(fiveDayDisplayContainer);
 
-     
+
 }
 
 // pseudoCode 
