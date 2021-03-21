@@ -62,75 +62,28 @@ formCont.on('click', '#submitBtn', function(event){
 // function to parse data objects into useable key value pairs
 function parseResponseDataObj(currentData, fiveDayData){
     
-    var storedDataObj = 
+    var storedDataObj = []
 
-    { city: 
-        [   
-            {
-                cityName: currentData[0].name,
-                currentIcon: currentData[0].weather[0].icon,
-                currentTemp: currentData[0].main.temp,
-                highTemp: currentData[0].main.temp_max,
-                lowTemp: currentData[0].main.temp_min,
-                humidity: currentData[0].main.humidity,
-                windSpeed: currentData[0].wind.speed,
-                feelsLike: currentData[0].main.feels_like,
-                lat: currentData[0].coord.lat,
-                long: currentData[0].coord.lon
-            },
-            {
-                dayOne: {
-                            futureForcastIcon: fiveDayData[0].list[6].weather[0].icon,
-                            futureTemp: fiveDayData[0].list[6].main.temp,
-                            futureHighTemp: fiveDayData[0].list[6].main.temp_max,
-                            futureLowTemp: fiveDayData[0].list[6].main.temp_min,
-                            futureHumidity: fiveDayData[0].list[6].main.humidity,
-                            futureWindSpeed: fiveDayData[0].list[6].wind.speed,
-                            futureFeelsLike: fiveDayData[0].list[6].main.feels_like
-                        },
-                
-                dayTwo: {
-                            futureForcastIcon: fiveDayData[0].list[14].weather[0].icon,
-                            futureTemp: fiveDayData[0].list[14].main.temp,
-                            futureHighTemp: fiveDayData[0].list[14].main.temp_max,
-                            futureLowTemp: fiveDayData[0].list[14].main.temp_min,
-                            futureHumidity: fiveDayData[0].list[14].main.humidity,
-                            futureWindSpeed: fiveDayData[0].list[14].wind.speed,
-                            futureFeelsLike: fiveDayData[0].list[14].main.feels_like
-                        },
-                
-                dayThree: {
-                            futureForcastIcon: fiveDayData[0].list[22].weather[0].icon,
-                            futureTemp: fiveDayData[0].list[22].main.temp,
-                            futureHighTemp: fiveDayData[0].list[22].main.temp_max,
-                            futureLowTemp: fiveDayData[0].list[22].main.temp_min,
-                            futureHumidity: fiveDayData[0].list[22].main.humidity,
-                            futureWindSpeed: fiveDayData[0].list[22].wind.speed,
-                            futureFeelsLike: fiveDayData[0].list[22].main.feels_like
-                        },
-                
-                dayFour: {
-                            futureForcastIcon: fiveDayData[0].list[30].weather[0].icon,
-                            futureTemp: fiveDayData[0].list[30].main.temp,
-                            futureHighTemp: fiveDayData[0].list[30].main.temp_max,
-                            futureLowTemp: fiveDayData[0].list[30].main.temp_min,
-                            futureHumidity: fiveDayData[0].list[30].main.humidity,
-                            futureWindSpeed: fiveDayData[0].list[30].wind.speed,
-                            futureFeelsLike: fiveDayData[0].list[30].main.feels_like
-                        },
-                
-                dayFive: {
-                            futureForcastIcon: fiveDayData[0].list[38].weather[0].icon,
-                            futureTemp: fiveDayData[0].list[38].main.temp,
-                            futureHighTemp: fiveDayData[0].list[38].main.temp_max,
-                            futureLowTemp: fiveDayData[0].list[38].main.temp_min,
-                            futureHumidity: fiveDayData[0].list[38].main.humidity,
-                            futureWindSpeed: fiveDayData[0].list[38].wind.speed,
-                            futureFeelsLike: fiveDayData[0].list[38].main.feels_like
-                        }
-            }
-        ]
+    for ( i = 0; i <= 40; i+=7 ){
+        
+        var dayObject = {   
+                            lat: fiveDayData[0].city.coord.lat,
+                            long: fiveDayData[0].city.coord.lon,
+                            cityName: fiveDayData[0].city.name, 
+                            icon: fiveDayData[0].list[i].weather[0].icon,
+                            temp: fiveDayData[0].list[i].main.temp,
+                            highTemp: fiveDayData[0].list[i].main.temp_max,
+                            lowTemp: fiveDayData[0].list[i].main.temp_min,
+                            humidity: fiveDayData[0].list[i].main.humidity,
+                            windSpeed: fiveDayData[0].list[i].wind.speed,
+                            feelsLike: fiveDayData[0].list[i].main.feels_like
+                        }   
+
+        storedDataObj.push(dayObject);
+
     }
+
+    
     
     
     // call function to store data in master array
@@ -143,18 +96,17 @@ function parseResponseDataObj(currentData, fiveDayData){
 
 
 function createSearchHistory(){
-
-        // checks to see if search history exists yet
-        if (weatherDataArray.length > 1) {
-            // removes past search results
-            cityHistContainer.remove(); 
-        }
+    cityHistContainer.remove(); 
+        // // checks to see if search history exists yet
+        // if (weatherDataArray.length > 1) {
+        //     // removes past search results
+        //     cityHistContainer.remove(); 
+        // }
         // creates container that stores city name
         cityHistContainer = $('<div>');
         cityHistContainer.addClass('container remove');
         searchHistContainer.append(cityHistContainer);
         
-        //console.log(weatherDataArray.city)
 
         weatherDataArray.forEach(function(item, index){
             // stores each object item
@@ -168,11 +120,14 @@ function createSearchHistory(){
             city.addClass('col-sm-12 cityBtn');
             city.attr('data-index', index);
             // writing city name text to button
-            city.text(weatherDataObj.city[0].cityName)
+            city.text(weatherDataObj[index].cityName)
             // before appending city div - need to figure out how to add index value to div to be able to call upon it when clicked later
             rowContainer.append(city);
 
+            
         })
+
+        
     }
 
 
@@ -188,8 +143,10 @@ function storeData(dataObj){
     weatherDataArray.unshift(dataObj);
     }
 
+    
     createSearchHistory();
     currentWeatherForcast(dataObj);
+    fiveDayWeatherForcast(dataObj);
 }
 
 
@@ -198,7 +155,7 @@ searchHistContainer.on("click", ".cityBtn", function searchResults(){
     var weatherDataIndex = $(this).attr('data-index')
     // stores city data from indexed object
     var cityDataObj =  weatherDataArray[weatherDataIndex];
-    console.log(cityDataObj);
+    
 
     currentWeatherForcast(cityDataObj, weatherDataIndex);
 
@@ -208,51 +165,88 @@ searchHistContainer.on("click", ".cityBtn", function searchResults(){
 
 
 function currentWeatherForcast(cityDataObj, index){
+   //console.log(weatherDataArray);
 
-    if (currentDisplayIndex !== index){
-        currentDisplayContainer.remove(); 
-    }
+    currentDisplayContainer.remove();
+    // if (weatherDataArray.length > 0 ){
+    //     currentDisplayContainer.remove(); 
+    // }
      // creates container that stores city name
      currentDisplayContainer = $('<div>');
      currentDisplayContainer.addClass('container remove');
      currentDayContainer.append(currentDisplayContainer);
 
-    var currentRow = $('<div>');
-    currentRow.addClass('row');
-    currentDisplayContainer.append(currentRow);
+        var currentRow = $('<div>');
+        currentRow.addClass('row');
+        currentDisplayContainer.append(currentRow);
 
-    var cityName = $('<div>');
-    cityName.addClass('col-12');
-    cityName.text(cityDataObj.city[0].cityName);
+        var todayForecast = $('<h3>');
+        todayForecast.addClass('col-sm-12');
+        todayForecast.text("Today's Forecast:");
 
-    var currentTemp = $('<p>');
-    currentTemp.addClass('col-12');
-    currentTemp.text("Temperature: " + cityDataObj.city[0].currentTemp + " °F");
+        var cityName = $('<div>');
+        cityName.addClass('col-12');
+        cityName.text(cityDataObj[0].cityName);
 
-    var currentHumidity = $('<p>');
-    currentHumidity.addClass('col-12');
-    currentHumidity.text("Humidity: " + cityDataObj.city[0].humidity + "%");
+        var temp = $('<p>');
+        temp.addClass('col-12');
+        temp.text("Temperature: " + cityDataObj[0].temp + " °F");
 
-    var currentWindSpeed = $('<p>');
-    currentWindSpeed.addClass('col-12');
-    currentWindSpeed.text("Wind Speed: " + cityDataObj.city[0].windSpeed + " MPH");
+        var currentHumidity = $('<p>');
+        currentHumidity.addClass('col-12');
+        currentHumidity.text("Humidity: " + cityDataObj[0].humidity + "%");
 
-    currentDisplayContainer.append(cityName);
-    currentDisplayContainer.append(currentTemp);
-    currentDisplayContainer.append(currentHumidity);
-    currentDisplayContainer.append(currentWindSpeed);
+        var currentWindSpeed = $('<p>');
+        currentWindSpeed.addClass('col-12');
+        currentWindSpeed.text("Wind Speed: " + cityDataObj[0].windSpeed + " MPH");
+
+        currentDisplayContainer.append(todayForecast);
+        currentDisplayContainer.append(cityName);
+        currentDisplayContainer.append(temp);
+        currentDisplayContainer.append(currentHumidity);
+        currentDisplayContainer.append(currentWindSpeed);
+
+        return
 
 }
 
-function fiveDayWeatherForcast(cityDataObj, index){
+function fiveDayWeatherForcast(cityDataObj){
+    fiveDayDisplayContainer.remove();
+    // if ( weatherDataArray.length > 0 ){
+    //     fiveDayDisplayContainer.remove(); 
+    // }
+    
 
-    if (currentDisplayIndex !== index){
-        fiveDayDisplayContainer.remove(); 
-    }
-     // creates container that stores city name
-     fiveDayDisplayContainer = $('<div>');
-     fiveDayDisplayContainer.addClass('container remove');
-     fiveDayContainer.append(fiveDayDisplayContainer);
+    // creates container that stores city name
+    fiveDayDisplayContainer = $('<div>');
+    fiveDayDisplayContainer.addClass('row remove');
+    fiveDayContainer.append(fiveDayDisplayContainer);
+
+    // creates five day forcast title
+    var fiveDayForecast = $('<h3>');
+    fiveDayForecast.addClass('col-sm-12');
+    fiveDayForecast.text("5-Day Forecast:");
+    fiveDayDisplayContainer.append(fiveDayForecast);
+
+    console.log(cityDataObj);
+    cityDataObj.forEach(function(item, index){
+
+        
+        dayData = $('<div>');
+        dayData.addClass('col-sm-2 fiveDay');
+        fiveDayDisplayContainer.append(dayData);
+        
+        var dayTemp = $('<p>');
+        dayTemp.addClass('col-2');
+        dayTemp.text("Temperature: " + item.temp + " °F");
+
+        var dayOneHumidity = $('<p>');
+        dayOneHumidity.addClass('col-2');
+        dayOneHumidity.text("Humidity: " + item.humidity + "%");
+
+        dayData.append(dayTemp);
+        dayData.append(dayOneHumidity);
+})   
 
 
 }

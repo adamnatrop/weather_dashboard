@@ -29,3 +29,7 @@ footer {
     color: var(--white);
     border-top: 10px solid var(--secondary)
 }
+
+.fiveDay {
+    background-color: var(--light);
+}
