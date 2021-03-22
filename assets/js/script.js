@@ -10,28 +10,57 @@ var currentDisplayIndex = 0;
 var currentDisplayContainer = $();
 var fiveDayDisplayContainer = $();
 var timeStamp = moment();
-
+var zipcode = "";
 // Master Array used to push and store data 
 
-var weatherDataArray = JSON.parse(localStorage.getItem("weatherData")) || [];
+// var weatherDataArray = JSON.parse(localStorage.getItem("weatherData")) || [];
 
-if (weatherDataArray.length !==0){
-    createSearchHistory();
+var cityArray = JSON.parse(localStorage.getItem("searchInput")) || [];
+var weatherDataArray = [];
+
+// if (weatherDataArray.length !==0){
+//     createSearchHistory();
+// }
+
+if (cityArray.length !==0) {
+
+    cityArray.forEach(function(item, index){
+        
+        apiCall(item);
+    })
+
 }
 
-
+// add in image url for the icons http://openweathermap.org/img/w/{icon}@2x.png  
 
 
 // API event listner on form submit button
-formCont.on('click', '#submitBtn', function(event){
+formCont.on('click', '#submitBtn', requestApi)
+
+
+function requestApi (event){
     event.preventDefault()
     // selecting the input field
     btnInput = $(this).parent().siblings().children('#inputZip');
     // storing userinput value
-    var zipcode = btnInput.val();
+    zipcode = btnInput.val();
     // calling api with user input zipcode. Current, 5 Day, and Map - for UV index
     
+
+    if (cityArray.length > 4){
+        cityArray.pop();
+        cityArray.unshift(zipcode);
+    } else {
+
+    cityArray.unshift(zipcode);
+    }
+
     
+
+    apiCall(zipcode);
+}
+
+function apiCall(zipcode){
     var requestWeatherDataURL = `https://api.openweathermap.org/data/2.5/forecast?zip=${zipcode}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
     // &cnt=1
     // var requestMapUrl = '',
@@ -44,11 +73,7 @@ formCont.on('click', '#submitBtn', function(event){
                 url: requestWeatherDataURL,
                 method: 'GET',
             })
-            // $.ajax({
-            //     url: requestMapData,
-            //     method: 'GET',
-            // })
-
+          
         // once the call is received pushes both data objects to parse function
         ).then(function (fiveDay) {
             
@@ -69,7 +94,7 @@ formCont.on('click', '#submitBtn', function(event){
         
 
             
-
+            console.log(fiveDay)
         
         
         
@@ -77,20 +102,23 @@ formCont.on('click', '#submitBtn', function(event){
         });       // write another call function to get the map data lat long based on the current api
             
         
-    
+    }    
         
     
        
-})
+
 
 // function to parse data objects into useable key value pairs
 function parseResponseDataObj(fiveDayData, mapUV){
     
+    localStorage.setItem("searchInput", JSON.stringify(cityArray));
+
     var storedDataObj = []
 
     for ( i = 0; i <= 40; i+=7 ){
         
         var dayObject = {   
+                            date: fiveDayData.list[i].dt,
                             uvi: mapUV.current.uvi,
                             lat: fiveDayData.city.coord.lat,
                             long: fiveDayData.city.coord.lon,
@@ -110,7 +138,7 @@ function parseResponseDataObj(fiveDayData, mapUV){
     
     // call function to store data in master array
     storeData(storedDataObj);
-    console.log(storedDataObj);
+   
 }
 
 
@@ -159,7 +187,7 @@ function storeData(dataObj){
 
     weatherDataArray.unshift(dataObj);
     }
-    localStorage.setItem("weatherData", JSON.stringify(weatherDataArray));
+   // localStorage.setItem("weatherData", JSON.stringify(weatherDataArray));
     // runs through first screen build and displays data
     createSearchHistory();
     currentWeatherForcast(dataObj);
@@ -183,7 +211,7 @@ searchHistContainer.on("click", ".cityBtn", function searchResults(){
 
 function currentWeatherForcast(cityDataObj, index){
    
-
+    console.log(cityDataObj[0].icon);
     currentDisplayContainer.remove();
     
      // creates container that stores city name
@@ -195,11 +223,15 @@ function currentWeatherForcast(cityDataObj, index){
         currentRow.addClass('row');
         currentDisplayContainer.append(currentRow);
 
-        var todayForecast = $('<h2>');
-        todayForecast.addClass('col-sm-12');
+        var todayForecast = $('<h3>');
+        todayForecast.addClass('col-sm-10');
         todayForecast.text("Today's Forecast:");
 
-        var cityName = $('<h3>');
+        var iconImg = $(`<img src=http://openweathermap.org/img/wn/${cityDataObj[0].icon}@2x.png>`);
+        iconImg.addClass('col-sm-2');
+        
+
+        var cityName = $('<h2>');
         cityName.addClass('col-12');
         cityName.text(cityDataObj[0].cityName + " " + moment().format('dddd MMM DD YYYY'));
 
@@ -221,8 +253,10 @@ function currentWeatherForcast(cityDataObj, index){
 
         setUVIndexClass(currentUVI, cityDataObj[0].uvi);
 
-        currentDisplayContainer.append(todayForecast);
+        
         currentDisplayContainer.append(cityName);
+        currentDisplayContainer.append(todayForecast);
+        todayForecast.append(iconImg);
         currentDisplayContainer.append(temp);
         currentDisplayContainer.append(currentHumidity);
         currentDisplayContainer.append(currentWindSpeed);
@@ -271,8 +305,11 @@ function fiveDayWeatherForcast(cityDataObj){
         fiveDayDisplayContainer.append(dayData);
 
         var dateStamp = $('<p>');
-        dateStamp.addClass('col-12');
-        dateStamp.text(moment().add(1, 'days').format('dddd MMM DD'));
+        dateStamp.addClass('col-12 noWrap');
+        dateStamp.text(moment().add(index+1, 'days').format('dddd MMM DD'));
+
+        var iconImg = $(`<img src=http://openweathermap.org/img/wn/${item.icon}@2x.png>`);
+        iconImg.addClass('col-sm-12');
         
         var dayTemp = $('<p>');
         dayTemp.addClass('col-12');
@@ -283,6 +320,7 @@ function fiveDayWeatherForcast(cityDataObj){
         dayOneHumidity.text("Humidity: " + item.humidity + "%");
 
         dayData.append(dateStamp);
+        dayData.append(iconImg);
         dayData.append(dayTemp);
         dayData.append(dayOneHumidity);
 })   

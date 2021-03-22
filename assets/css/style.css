@@ -49,3 +49,7 @@ footer {
 .uvViolet {
     background-color: violet;
 }
+
+.noWrap {
+    white-space: nowrap;
+}
