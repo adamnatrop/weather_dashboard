@@ -13,9 +13,11 @@ var timeStamp = moment();
 
 // Master Array used to push and store data 
 
-weatherDataArray = [];
+var weatherDataArray = JSON.parse(localStorage.getItem("weatherData")) || [];
 
-
+if (weatherDataArray.length !==0){
+    createSearchHistory();
+}
 
 
 
@@ -28,7 +30,8 @@ formCont.on('click', '#submitBtn', function(event){
     // storing userinput value
     var zipcode = btnInput.val();
     // calling api with user input zipcode. Current, 5 Day, and Map - for UV index
-    var requestMapData = `https://api.openweathermap.org/data/2.5/onecall?lat=44.9847&lon=-93.5422&exclude=minutely,hourly&appid=20eb9192c17b776afe4b330eba55cc38`;
+    
+    
     var requestWeatherDataURL = `https://api.openweathermap.org/data/2.5/forecast?zip=${zipcode}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
     // &cnt=1
     // var requestMapUrl = '',
@@ -40,25 +43,44 @@ formCont.on('click', '#submitBtn', function(event){
             $.ajax({
                 url: requestWeatherDataURL,
                 method: 'GET',
-            }),
+            })
+            // $.ajax({
+            //     url: requestMapData,
+            //     method: 'GET',
+            // })
+
+        // once the call is received pushes both data objects to parse function
+        ).then(function (fiveDay) {
+            
+            var lat = fiveDay.city.coord.lat;
+            var lon = fiveDay.city.coord.lon;
+            
+            var requestMapData = `https://api.openweathermap.org/data/2.5/onecall?lat=${lat}&lon=${lon}&exclude=minutely,hourly&appid=20eb9192c17b776afe4b330eba55cc38`;
+
+        
             $.ajax({
                 url: requestMapData,
                 method: 'GET',
+            }).then(function(mapUVData){
+               
+                parseResponseDataObj(fiveDay, mapUVData);
+                console.log(mapUVData)
             })
-
-        // once the call is received pushes both data objects to parse function
-        ).then(function (fiveDay, mapUV) {
-            //console.log('Ajax Reponse \n-------------');
-            //console.log(current, fiveDay);
         
 
-            // write another call function to get the map data lat long based on the current api
             
-        parseResponseDataObj(fiveDay, mapUV);
 
-        console.log(mapUV)
+        
+        
+        
 
-        });
+        });       // write another call function to get the map data lat long based on the current api
+            
+        
+    
+        
+    
+       
 })
 
 // function to parse data objects into useable key value pairs
@@ -69,17 +91,17 @@ function parseResponseDataObj(fiveDayData, mapUV){
     for ( i = 0; i <= 40; i+=7 ){
         
         var dayObject = {   
-                            uvi: mapUV[0].current.uvi,
-                            lat: fiveDayData[0].city.coord.lat,
-                            long: fiveDayData[0].city.coord.lon,
-                            cityName: fiveDayData[0].city.name, 
-                            icon: fiveDayData[0].list[i].weather[0].icon,
-                            temp: fiveDayData[0].list[i].main.temp,
-                            highTemp: fiveDayData[0].list[i].main.temp_max,
-                            lowTemp: fiveDayData[0].list[i].main.temp_min,
-                            humidity: fiveDayData[0].list[i].main.humidity,
-                            windSpeed: fiveDayData[0].list[i].wind.speed,
-                            feelsLike: fiveDayData[0].list[i].main.feels_like
+                            uvi: mapUV.current.uvi,
+                            lat: fiveDayData.city.coord.lat,
+                            long: fiveDayData.city.coord.lon,
+                            cityName: fiveDayData.city.name, 
+                            icon: fiveDayData.list[i].weather[0].icon,
+                            temp: fiveDayData.list[i].main.temp,
+                            highTemp: fiveDayData.list[i].main.temp_max,
+                            lowTemp: fiveDayData.list[i].main.temp_min,
+                            humidity: fiveDayData.list[i].main.humidity,
+                            windSpeed: fiveDayData.list[i].wind.speed,
+                            feelsLike: fiveDayData.list[i].main.feels_like
                         }   
 
         storedDataObj.push(dayObject);
@@ -137,7 +159,7 @@ function storeData(dataObj){
 
     weatherDataArray.unshift(dataObj);
     }
-
+    localStorage.setItem("weatherData", JSON.stringify(weatherDataArray));
     // runs through first screen build and displays data
     createSearchHistory();
     currentWeatherForcast(dataObj);
