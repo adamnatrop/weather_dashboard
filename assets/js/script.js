@@ -9,6 +9,7 @@ var cityHistContainer = $();
 var currentDisplayIndex = 0;
 var currentDisplayContainer = $();
 var fiveDayDisplayContainer = $();
+var timeStamp = moment();
 
 // Master Array used to push and store data 
 
@@ -27,46 +28,48 @@ formCont.on('click', '#submitBtn', function(event){
     // storing userinput value
     var zipcode = btnInput.val();
     // calling api with user input zipcode. Current, 5 Day, and Map - for UV index
-    var requestCurrentUrl = `https://api.openweathermap.org/data/2.5/weather?zip=${zipcode}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
-    var requestFiveDayUrl = `https://api.openweathermap.org/data/2.5/forecast?zip=${zipcode}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
+    var requestMapData = `https://api.openweathermap.org/data/2.5/onecall?lat=44.9847&lon=-93.5422&exclude=minutely,hourly&appid=20eb9192c17b776afe4b330eba55cc38`;
+    var requestWeatherDataURL = `https://api.openweathermap.org/data/2.5/forecast?zip=${zipcode}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
     // &cnt=1
     // var requestMapUrl = '',
 
         // calling api simultaneously  
         $.when(
 
+            
             $.ajax({
-                url: requestCurrentUrl,
+                url: requestWeatherDataURL,
                 method: 'GET',
             }),
             $.ajax({
-                url: requestFiveDayUrl,
+                url: requestMapData,
                 method: 'GET',
             })
 
         // once the call is received pushes both data objects to parse function
-        ).then(function (current, fiveDay) {
+        ).then(function (fiveDay, mapUV) {
             //console.log('Ajax Reponse \n-------------');
             //console.log(current, fiveDay);
         
 
             // write another call function to get the map data lat long based on the current api
             
-        parseResponseDataObj(current, fiveDay);
+        parseResponseDataObj(fiveDay, mapUV);
 
-        
+        console.log(mapUV)
 
         });
 })
 
 // function to parse data objects into useable key value pairs
-function parseResponseDataObj(currentData, fiveDayData){
+function parseResponseDataObj(fiveDayData, mapUV){
     
     var storedDataObj = []
 
     for ( i = 0; i <= 40; i+=7 ){
         
         var dayObject = {   
+                            uvi: mapUV[0].current.uvi,
                             lat: fiveDayData[0].city.coord.lat,
                             long: fiveDayData[0].city.coord.lon,
                             cityName: fiveDayData[0].city.name, 
@@ -80,52 +83,44 @@ function parseResponseDataObj(currentData, fiveDayData){
                         }   
 
         storedDataObj.push(dayObject);
-
+        
     }
-
-    
-    
     
     // call function to store data in master array
-    storeData(storedDataObj)
-
-    
-
+    storeData(storedDataObj);
+    console.log(storedDataObj);
 }
 
 
 
 function createSearchHistory(){
+    
     cityHistContainer.remove(); 
-        // // checks to see if search history exists yet
-        // if (weatherDataArray.length > 1) {
-        //     // removes past search results
-        //     cityHistContainer.remove(); 
-        // }
-        // creates container that stores city name
-        cityHistContainer = $('<div>');
-        cityHistContainer.addClass('container remove');
-        searchHistContainer.append(cityHistContainer);
+     
+    // creates container that stores city name
+    cityHistContainer = $('<div>');
+    cityHistContainer.addClass('container remove');
+    searchHistContainer.append(cityHistContainer);
+    
+
+    weatherDataArray.forEach(function(item, index){
+        // stores each object item
+        var weatherDataObj = item;
+        // creates row container for each city
+        var rowContainer = $('<div>');
+        rowContainer.addClass('row searchHistory');
+        cityHistContainer.append(rowContainer);
+        // creates city "button" that user will click on to display weather results
+        var city = $('<div>');
+        city.addClass('col-sm-12 cityBtn');
+        city.attr('data-index', index);
+        // writing city name text to button
+        city.text(weatherDataObj[index].cityName)
+        // before appending city div - need to figure out how to add index value to div to be able to call upon it when clicked later
+        rowContainer.append(city);
+
         
-
-        weatherDataArray.forEach(function(item, index){
-            // stores each object item
-            var weatherDataObj = item;
-            // creates row container for each city
-            var rowContainer = $('<div>');
-            rowContainer.addClass('row searchHistory');
-            cityHistContainer.append(rowContainer);
-            // creates city "button" that user will click on to display weather results
-            var city = $('<div>');
-            city.addClass('col-sm-12 cityBtn');
-            city.attr('data-index', index);
-            // writing city name text to button
-            city.text(weatherDataObj[index].cityName)
-            // before appending city div - need to figure out how to add index value to div to be able to call upon it when clicked later
-            rowContainer.append(city);
-
-            
-        })
+    })
 
         
     }
@@ -143,34 +138,32 @@ function storeData(dataObj){
     weatherDataArray.unshift(dataObj);
     }
 
-    
+    // runs through first screen build and displays data
     createSearchHistory();
     currentWeatherForcast(dataObj);
     fiveDayWeatherForcast(dataObj);
 }
 
-
+// click listener when user selects a city from recent search
 searchHistContainer.on("click", ".cityBtn", function searchResults(){
     // gets array index value based on button clicked
     var weatherDataIndex = $(this).attr('data-index')
     // stores city data from indexed object
     var cityDataObj =  weatherDataArray[weatherDataIndex];
     
-
+    // calls current weather function passes clicked object and index value
     currentWeatherForcast(cityDataObj, weatherDataIndex);
-
+    // calls fivedayforcast passes clicked object and index value
     fiveDayWeatherForcast(cityDataObj, weatherDataIndex);
 
 })
 
 
 function currentWeatherForcast(cityDataObj, index){
-   //console.log(weatherDataArray);
+   
 
     currentDisplayContainer.remove();
-    // if (weatherDataArray.length > 0 ){
-    //     currentDisplayContainer.remove(); 
-    // }
+    
      // creates container that stores city name
      currentDisplayContainer = $('<div>');
      currentDisplayContainer.addClass('container remove');
@@ -180,13 +173,13 @@ function currentWeatherForcast(cityDataObj, index){
         currentRow.addClass('row');
         currentDisplayContainer.append(currentRow);
 
-        var todayForecast = $('<h3>');
+        var todayForecast = $('<h2>');
         todayForecast.addClass('col-sm-12');
         todayForecast.text("Today's Forecast:");
 
-        var cityName = $('<div>');
+        var cityName = $('<h3>');
         cityName.addClass('col-12');
-        cityName.text(cityDataObj[0].cityName);
+        cityName.text(cityDataObj[0].cityName + " " + moment().format('dddd MMM DD YYYY'));
 
         var temp = $('<p>');
         temp.addClass('col-12');
@@ -200,23 +193,42 @@ function currentWeatherForcast(cityDataObj, index){
         currentWindSpeed.addClass('col-12');
         currentWindSpeed.text("Wind Speed: " + cityDataObj[0].windSpeed + " MPH");
 
+        var currentUVI = $('<p>');
+        currentUVI.addClass('col-sm-2');
+        currentUVI.text("UV Index: " + cityDataObj[0].uvi);
+
+        setUVIndexClass(currentUVI, cityDataObj[0].uvi);
+
         currentDisplayContainer.append(todayForecast);
         currentDisplayContainer.append(cityName);
         currentDisplayContainer.append(temp);
         currentDisplayContainer.append(currentHumidity);
         currentDisplayContainer.append(currentWindSpeed);
+        currentDisplayContainer.append(currentUVI);
 
         return
 
 }
 
+function setUVIndexClass(currentUVI, cityUVIndex){
+
+    if (cityUVIndex <= 2 ){
+    currentUVI.addClass('uvGreen')
+    } else if (cityUVIndex >= 3 && cityUVIndex <= 4){
+    currentUVI.addClass('uvYellow')
+    } else if (cityUVIndex >= 6 && cityUVIndex <= 7){
+        currentUVI.addClass('uvOrange')
+    } else if (cityUVIndex >= 8 && cityUVIndex <= 10){
+        currentUVI.addClass('uvRed')
+    } else {
+        currentUVI.addClass('uvViolet')
+    }
+
+}   
+
 function fiveDayWeatherForcast(cityDataObj){
     fiveDayDisplayContainer.remove();
-    // if ( weatherDataArray.length > 0 ){
-    //     fiveDayDisplayContainer.remove(); 
-    // }
     
-
     // creates container that stores city name
     fiveDayDisplayContainer = $('<div>');
     fiveDayDisplayContainer.addClass('row remove');
@@ -229,21 +241,26 @@ function fiveDayWeatherForcast(cityDataObj){
     fiveDayDisplayContainer.append(fiveDayForecast);
 
     console.log(cityDataObj);
-    cityDataObj.forEach(function(item, index){
-
+    cityDataObj.slice(1).forEach(function(item, index){
+        
         
         dayData = $('<div>');
         dayData.addClass('col-sm-2 fiveDay');
         fiveDayDisplayContainer.append(dayData);
+
+        var dateStamp = $('<p>');
+        dateStamp.addClass('col-12');
+        dateStamp.text(moment().add(1, 'days').format('dddd MMM DD'));
         
         var dayTemp = $('<p>');
-        dayTemp.addClass('col-2');
+        dayTemp.addClass('col-12');
         dayTemp.text("Temperature: " + item.temp + " °F");
 
         var dayOneHumidity = $('<p>');
-        dayOneHumidity.addClass('col-2');
+        dayOneHumidity.addClass('col-12');
         dayOneHumidity.text("Humidity: " + item.humidity + "%");
 
+        dayData.append(dateStamp);
         dayData.append(dayTemp);
         dayData.append(dayOneHumidity);
 })   
