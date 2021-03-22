@@ -306,7 +306,7 @@ function fiveDayWeatherForcast(cityDataObj){
 
         var dateStamp = $('<p>');
         dateStamp.addClass('col-12 noWrap');
-        dateStamp.text(moment().add(index+1, 'days').format('dddd MMM DD'));
+        dateStamp.text(moment().add(index+1, 'days').format('dddd DD'));
 
         var iconImg = $(`<img src=http://openweathermap.org/img/wn/${item.icon}@2x.png>`);
         iconImg.addClass('col-sm-12');
