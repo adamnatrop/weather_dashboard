@@ -61,7 +61,7 @@ function requestApi (event){
 }
 
 function apiCall(zipcode){
-    var requestWeatherDataURL = `https://api.openweathermap.org/data/2.5/forecast?zip=${zipcode}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
+    var requestWeatherDataURL = `https://api.openweathermap.org/data/2.5/forecast?q=${zipcode}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
     // &cnt=1
     // var requestMapUrl = '',
 
