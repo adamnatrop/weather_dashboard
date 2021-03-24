@@ -10,7 +10,7 @@ var currentDisplayIndex = 0;
 var currentDisplayContainer = $();
 var fiveDayDisplayContainer = $();
 var timeStamp = moment();
-var zipcode = "";
+var userInputCity = 0;
 // Master Array used to push and store data 
 
 // var weatherDataArray = JSON.parse(localStorage.getItem("weatherData")) || [];
@@ -43,28 +43,28 @@ function requestApi (event){
     // selecting the input field
     btnInput = $(this).parent().siblings().children('#inputZip');
     // storing userinput value
-    zipcode = btnInput.val();
-    // calling api with user input zipcode. Current, 5 Day, and Map - for UV index
+    userInputCity = btnInput.val();
+    // calling api with user input userInputCity. Current, 5 Day, and Map - for UV index
     
 
     if (cityArray.length > 4){
         cityArray.pop();
-        cityArray.unshift(zipcode);
+        cityArray.unshift(userInputCity);
     } else {
 
-    cityArray.unshift(zipcode);
+    cityArray.unshift(userInputCity);
     }
 
     
 
-    apiCall(zipcode);
+    apiCall(userInputCity);
 }
 
-function apiCall(zipcode){
-    var requestWeatherDataURL = `https://api.openweathermap.org/data/2.5/forecast?q=${zipcode}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
+function apiCall(userInputCity){
+    var requestWeatherDataURL = `https://api.openweathermap.org/data/2.5/forecast?q=${userInputCity}&units=imperial&appid=20eb9192c17b776afe4b330eba55cc38`;
     // &cnt=1
     // var requestMapUrl = '',
-
+    console.log(requestWeatherDataURL)
         // calling api simultaneously  
         $.when(
 
@@ -72,6 +72,8 @@ function apiCall(zipcode){
             $.ajax({
                 url: requestWeatherDataURL,
                 method: 'GET',
+                
+                
             })
           
         // once the call is received pushes both data objects to parse function
@@ -162,7 +164,7 @@ function createSearchHistory(){
         cityHistContainer.append(rowContainer);
         // creates city "button" that user will click on to display weather results
         var city = $('<div>');
-        city.addClass('col-sm-12 cityBtn');
+        city.addClass('col-sm-12 cityBtn btn btn-outline-primary');
         city.attr('data-index', index);
         // writing city name text to button
         city.text(weatherDataObj[index].cityName)
@@ -248,7 +250,7 @@ function currentWeatherForcast(cityDataObj, index){
         currentWindSpeed.text("Wind Speed: " + cityDataObj[0].windSpeed + " MPH");
 
         var currentUVI = $('<p>');
-        currentUVI.addClass('col-sm-2');
+        currentUVI.addClass('col-sm-2 btn');
         currentUVI.text("UV Index: " + cityDataObj[0].uvi);
 
         setUVIndexClass(currentUVI, cityDataObj[0].uvi);
@@ -268,15 +270,15 @@ function currentWeatherForcast(cityDataObj, index){
 
 function setUVIndexClass(currentUVI, cityUVIndex){
 
-    if (cityUVIndex <= 2 ){
+    if (cityUVIndex <= 2.9 ){
     currentUVI.addClass('uvGreen')
-    } else if (cityUVIndex >= 3 && cityUVIndex <= 4){
+    } else if (cityUVIndex >= 3 && cityUVIndex <= 5.9){
     currentUVI.addClass('uvYellow')
-    } else if (cityUVIndex >= 6 && cityUVIndex <= 7){
+    } else if (cityUVIndex >= 6 && cityUVIndex <= 7.9){
         currentUVI.addClass('uvOrange')
-    } else if (cityUVIndex >= 8 && cityUVIndex <= 10){
+    } else if (cityUVIndex >= 8 && cityUVIndex <= 10.9){
         currentUVI.addClass('uvRed')
-    } else {
+    } else if (cityUVIndex >= 11) {
         currentUVI.addClass('uvViolet')
     }
 

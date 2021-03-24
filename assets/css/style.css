@@ -32,24 +32,38 @@ footer {
 
 .fiveDay {
     background-color: var(--light);
+    margin: 1%;
+    min-width: 150px;
+    text-align:center;
+    padding: 15px;
+
 }
 
 .uvGreen {
     background-color: green;
+    color: var(--white);
 }
 .uvYellow {
     background-color: yellow;
+    color: var(--black);
 }
 .uvOrange {
     background-color: orange;
+    color: var(--black);
 }
 .uvRed {
     background-color: red;
+    color: var(--white);
 }
 .uvViolet {
     background-color: violet;
+    color: var(--white);
 }
 
 .noWrap {
     white-space: nowrap;
+}
+
+.cityBtn {
+    margin: 1%;
 }
